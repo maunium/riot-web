@@ -19,3 +19,4 @@ electron/pub
 /src/component-index.js
 /.tmp
 /webpack-stats.json
+/matrix-*-sdk

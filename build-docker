@@ -1,0 +1,13 @@
+#!/bin/bash
+cd $(dirname $0)
+docker run --rm -w /data -it \
+	-v $(pwd):/data \
+	-v $(pwd)/.home:/home/tulir \
+	-v /etc/passwd:/etc/passwd:ro \
+	--user 1000:1000 \
+	node:14 \
+	/bin/sh -c /data/build-sh
+
+if [[ $? -eq 0 ]]; then
+	sudo rsync --delete -tvhr webapp/ /srv/web/mau.chat/
+fi

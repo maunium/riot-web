@@ -1,0 +1,47 @@
+#!/bin/bash
+export RIOT_LANGUAGES_FILE="../../webapp/i18n/languages.json"
+
+rm -rf webapp/bundles/
+echo "Updating Element..."
+
+#export CI_PACKAGE=this is a hacky way to enable debug builds
+
+echo "Updating matrix-js-sdk..."
+cd matrix-js-sdk
+git checkout yarn.lock
+git pull
+yarn link
+yarn && yarn build
+jsver=$(git rev-parse origin/develop)
+jsver=${jsver:0:12}
+cd ..
+
+echo "Updating matrix-react-sdk..."
+cd matrix-react-sdk
+git checkout yarn.lock
+git pull
+yarn link
+yarn link matrix-js-sdk
+yarn && yarn build
+reactver=$(git rev-parse origin/develop)
+reactver=${reactver:0:12}
+cd ..
+
+echo "Updating element-web..."
+git checkout yarn.lock
+git pull
+yarn link matrix-js-sdk
+yarn link matrix-react-sdk
+ver=$(git rev-parse origin/develop)
+ver=${ver:0:12}
+
+echo "Updating dependencies..."
+yarn
+
+echo "Compiling..."
+yarn build
+
+echo "$ver-react-$reactver-js-$jsver" > webapp/version
+cp -f config.*.json webapp/
+
+echo "All done"
